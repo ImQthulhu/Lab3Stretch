@@ -41,7 +41,7 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 script {
-                    sh 'pip3 install pytest flask'
+                    sh 'pip3 install pytest flask --break-system-packages'
                     def result = sh(script: 'python3 -m pytest test_app.py -v', returnStatus: true)
                     if (result != 0) {
                         currentBuild.result = 'UNSTABLE'
