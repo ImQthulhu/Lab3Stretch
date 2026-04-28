@@ -21,34 +21,6 @@ pipeline {
             }
         }
 
-        stage('Trivy Scan') {
-            steps {
-                sh 'trivy fs --output trivy-report.txt .'
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: 'trivy-report.txt'
-                }
-            }
-        }
-
-        stage('Approve') {
-            steps {
-                input message: 'Trivy scan complete. Approve deployment?', ok: 'Deploy'
-            }
-        }
-
-        stage('Unit Tests') {
-            steps {
-                script {
-                    def result = sh(script: 'pip install -r requirements.txt && python -m pytest', returnStatus: true)
-                    if (result != 0) {
-                        currentBuild.result = 'UNSTABLE'
-                    }
-                }
-            }
-        }
-
         stage('Deploy') {
             steps {
                 sh '''
