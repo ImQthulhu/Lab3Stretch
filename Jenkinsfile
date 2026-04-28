@@ -41,8 +41,9 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 script {
-                    sh 'pip install pytest flask'
-                    def result = sh(script: 'python -m pytest test_app.py -v', returnStatus: true)
+                    sh 'sudo apt-get install -y python3-pip'
+                    sh 'pip3 install pytest flask'
+                    def result = sh(script: 'python3 -m pytest test_app.py -v', returnStatus: true)
                     if (result != 0) {
                         currentBuild.result = 'UNSTABLE'
                     }
