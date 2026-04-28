@@ -41,7 +41,6 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 script {
-                    sh 'sudo apt-get install -y python3-pip'
                     sh 'pip3 install pytest flask'
                     def result = sh(script: 'python3 -m pytest test_app.py -v', returnStatus: true)
                     if (result != 0) {
