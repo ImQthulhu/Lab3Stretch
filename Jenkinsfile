@@ -21,11 +21,40 @@ pipeline {
             }
         }
 
+        stage('Trivy Scan') {
+            steps {
+                sh 'trivy fs --output trivy-report.txt .'
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'trivy-report.txt'
+                }
+            }
+        }
+
+        stage('Approve') {
+            steps {
+                input message: 'Trivy scan complete. Approve deployment?', ok: 'Deploy'
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                script {
+                    sh 'pip install pytest flask'
+                    def result = sh(script: 'python -m pytest test_app.py -v', returnStatus: true)
+                    if (result != 0) {
+                        currentBuild.result = 'UNSTABLE'
+                    }
+                }
+            }
+        }
+
         stage('Deploy') {
             steps {
                 sh '''
                     docker run -d --name flask-app --network app-network flask-app
-                    docker run -d --name nginx-proxy --network app-network -p 80:5500 nginx-proxy
+                    docker run -d --name nginx-proxy --network app-network -p 8082:80 nginx-proxy
                 '''
             }
         }
